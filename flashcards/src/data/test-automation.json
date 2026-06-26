@@ -1,0 +1,902 @@
+[
+  {
+    "id": "auto-001",
+    "question": "What is the test automation pyramid and why is it important?",
+    "answer": "The test automation pyramid (Cohn, 2009) has three layers: unit tests at the base (fast, many), service/API tests in the middle, and UI/E2E tests at the top (slow, few). It emphasizes having more low-level, fast, reliable tests and fewer brittle, slow E2E ones. The pyramid guides test strategy to maximize ROI \u2014 catching failures early with cheap tests and reserving expensive UI tests for critical paths.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "easy",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-002",
+    "question": "What is the difference between a web-first assertion and a traditional assertion in Playwright?",
+    "answer": "Web-first assertions (like toBeVisible, toHaveText) automatically wait for the element to reach the expected state before checking. Traditional assertions (like expect(await page.textContent('x')).toBe('y')) take a snapshot of state and compare immediately, which makes them prone to flakiness. Playwright recommends web-first assertions because they eliminate the need for manual wait/sleep calls.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-003",
+    "question": "How do you calculate ROI for test automation?",
+    "answer": "ROI = (manual execution cost \u00d7 executions saved) \u2212 (automation development + maintenance cost). Manual execution cost includes time per run and frequency of regression cycles. Automation cost includes script development, framework setup, and ongoing maintenance when the UI or API changes. Break-even is typically reached after 3\u20135 regression cycles for stable tests.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-004",
+    "question": "What is the test trophy and how does it differ from the test pyramid?",
+    "answer": "The test trophy, popularized by Kent C. Dodds, shifts emphasis from unit tests to integration tests as the largest layer. It argues that integration tests (testing how units work together) give the best confidence-to-speed ratio. Unlike the pyramid which puts unit tests at the base, the trophy prioritizes integration tests, with static analysis and unit tests supporting them and a thin E2E layer on top.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-005",
+    "question": "How does Playwright's auto-waiting mechanism work?",
+    "answer": "Playwright automatically waits for elements to be actionable \u2014 visible, enabled, and stable (no ongoing animations) \u2014 before performing actions like click or fill. It uses actionability checks built into each action rather than relying on explicit wait statements. This eliminates the need for sleep() or waitForTimeout calls that introduce flakiness in other frameworks.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "easy",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-006",
+    "question": "Explain the Page Object Model pattern and its primary benefit.",
+    "answer": "Page Object Model (POM) encapsulates page-specific elements and actions into classes, so tests interact with page objects rather than raw selectors. The primary benefit is maintenance isolation: when a locator changes, you update one page object instead of hundreds of tests. POM reduces duplication and improves readability by exposing business-level methods like login() instead of tangled selector chains.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "easy",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-007",
+    "question": "What is the difference between REST and GraphQL API testing?",
+    "answer": "REST has fixed endpoints returning predefined data shapes, so testing focuses on verifying specific endpoints with different status codes and payloads. GraphQL uses a single endpoint where the client defines the shape of the response, so testing must verify queries, mutations, and subscription logic without over- or under-fetching data. GraphQL testing also requires schema validation and resolver-level tests for data integrity.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-008",
+    "question": "How should you integrate automated tests into a CI/CD pipeline?",
+    "answer": "Tests should run in stages: unit and integration tests on every commit (fast feedback), API tests on pull requests, and E2E tests on merge to main or before deployment. Parallel execution and test sharding reduce pipeline time. Quality gates (flaky rate < 5%, no critical failures) should block deployments when thresholds are exceeded.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-009",
+    "question": "What makes a flaky test and how do you deal with it?",
+    "answer": "A flaky test passes and fails intermittently without code changes, caused by timing issues, shared state, async race conditions, or environment dependencies. Reduce flakiness with web-first assertions, isolated test data, and deterministic selectors. When found, quarantine affected tests immediately, track flaky rate in CI, and triage within 24\u201348 hours to maintain trust in the test suite.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 10,
+    "category": "automation"
+  },
+  {
+    "id": "auto-010",
+    "question": "How do you implement visual regression testing in Playwright?",
+    "answer": "Playwright's toHaveScreenshot() captures a screenshot and compares it pixel-by-pixel against a committed baseline, failing when the diff exceeds a configurable threshold (maxDiffPixels / maxDiffPixelRatio). Mask dynamic regions (timestamps, avatars, ads) with the mask option and disable animations to avoid false diffs. Baselines are platform-specific, so generate and review them in the same environment CI runs in (usually a pinned Docker image) to eliminate font and rendering noise.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-011",
+    "question": "What should you NOT automate in test automation?",
+    "answer": "Avoid automating tests that cover highly volatile UI that changes every sprint, one-time manual data validation, or exploratory testing scenarios. Also skip tests where the cost of automation exceeds the manual execution cost over the expected lifespan. Visual regression tests that require frequent baseline updates can become maintenance nightmares if not carefully scoped.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "easy",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-012",
+    "question": "What locator strategies does Playwright support and which is preferred?",
+    "answer": "Playwright supports locators by role, text, label, placeholder, alt text, CSS, XPath, and test IDs. Role-based locators (getByRole) are preferred as they mirror how assistive technology reads the page and are least likely to break with style changes. Test IDs (getByTestId) are an excellent fallback for elements without semantic roles, while CSS and XPath are more brittle and should be avoided.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "easy",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-013",
+    "question": "What are HTTP status code categories and their meaning in API testing?",
+    "answer": "1xx (Informational): request received, continuing. 2xx (Success): request succeeded \u2014 200 OK, 201 Created, 204 No Content. 3xx (Redirection): further action needed \u2014 301 Moved, 304 Not Modified. 4xx (Client Error): bad request \u2014 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found. 5xx (Server Error): server failed \u2014 500 Internal, 502 Bad Gateway, 503 Service Unavailable. API tests should verify correct codes for valid and invalid inputs.",
+    "topic": "API Test Automation",
+    "difficulty": "easy",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-014",
+    "question": "What are the disadvantages of the Page Object Model?",
+    "answer": "POM can lead to bloated page classes that violate the Single Responsibility Principle, especially when pages are large or shared across features. It also encourages tight coupling between test flow and page structure, making tests harder to read as flows get abstracted behind generic methods. In complex apps, fragments or component objects (a la Screenplay pattern) often work better than monolithic page objects.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-015",
+    "question": "How do you handle parallel test execution in Playwright or Cypress?",
+    "answer": "Playwright runs tests in multiple worker processes by default, each running in its own browser context. Cypress supports parallelization via the Cypress Dashboard or CI sharding with cypress-parallel. Key considerations: tests must be independent (no shared state), each worker needs sufficient resources, and test data must be isolated per worker to avoid collisions.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-016",
+    "question": "Explain the difference between OAuth, Bearer token, and API Key authentication in API testing.",
+    "answer": "API Key is a static token sent as a header, simplest to test but offers limited security and lacks expiration. Bearer tokens are short-lived JWTs obtained by authenticating first, commonly used in REST APIs \u2014 test scripts must obtain and refresh them. OAuth is a full authorization framework (2.0/1.0a) involving client credentials, authorization codes, and refresh tokens, requiring multi-step flows in tests.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-017",
+    "question": "How does asynchronous code (async/await) affect test automation?",
+    "answer": "Most browser automation APIs are asynchronous \u2014 clicking, waiting, and data fetching return Promises. Using async/await makes test code read sequentially while preserving non-blocking I/O. Forgetting to await a Promise can cause race conditions where assertions run before the action completes, leading to intermittent failures. Test runners like Playwright and Cypress handle async natively, but improper handling is a major source of flakiness.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-018",
+    "question": "What is contract testing and how does it relate to API testing?",
+    "answer": "Contract testing verifies that a provider's API satisfies the expectations of its consumers. Tools like Pact capture consumer-driven contracts and replay them against the provider. It sits between unit and E2E tests, catching integration issues like missing fields or changed data types before deployment. Unlike traditional API tests that test the server, contract tests test the agreement between services.",
+    "topic": "API Test Automation",
+    "difficulty": "hard",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-019",
+    "question": "How do you design a scalable test suite for 10,000+ tests?",
+    "answer": "Organize tests in a risk-based hierarchy: smoke (critical paths, run on every commit), regression (full suite, run nightly), and exploratory (manual, targeted). Use parallel sharding across CI workers with dynamic test splitting to balance load. Tag tests by feature, layer, and stability so you can run targeted subsets. Invest in test data factories and environment management to avoid global state pollution across workers.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "hard",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-020",
+    "question": "How do you automate accessibility (a11y) testing?",
+    "answer": "Integrate an accessibility engine like axe-core (via @axe-core/playwright or cypress-axe) to scan rendered pages for WCAG violations \u2014 missing labels, low contrast, invalid ARIA, keyboard traps. Assert that the violations array is empty or within an agreed baseline, and scan key states (modal open, form with errors), not just initial load. Automated checks catch roughly 30-40% of issues, so combine them with manual screen-reader and keyboard-only testing for real coverage.",
+    "topic": "Specialized Testing",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-021",
+    "question": "How do you handle test data management in API test automation?",
+    "answer": "Use factories or fixtures to generate fresh, deterministic test data per test run rather than sharing data across tests. Clean up after tests or use database transactions that roll back. For APIs, create resources via setup calls before tests and delete them in teardown. Avoid hard-coded test data \u2014 use parameterized inputs from JSON or CSV files for data-driven API tests.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-022",
+    "question": "Explain the difference between component testing and E2E testing in Playwright.",
+    "answer": "Component testing (via @playwright/experimental-ct-*) mounts a single component in isolation, allowing tests to verify behavior with mocked props and events without a full page load. E2E testing runs against a full deployed application with real routing, real API calls, and a real database. Component tests are faster and more targeted for frontend logic, while E2E tests verify end-to-end user flows and integration correctness.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-023",
+    "question": "What is the Screenplay pattern and how does it compare to Page Object Model?",
+    "answer": "Screenplay models test actors (users) performing tasks and asking questions about elements on screen, using abilities to interact with the application. It decouples actions (click 'Login'), elements (login button), and assertions in a way POM does not. Screenplay scales better for complex domains and multi-user scenarios but has a steeper learning curve. POM remains simpler and sufficient for most projects with straightforward UI flows.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "hard",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-024",
+    "question": "How do you detect and quarantine flaky tests in CI?",
+    "answer": "Track test results over time: a test that passes after re-run (retry) but failed initially is a candidate for flakiness. Tools like flaky-test-detector or CI plugins (e.g., Jenkins Flaky Test Handler) flag tests that fail intermittently. Quarantine by moving flagged tests to a separate CI stage that doesn't block the pipeline, and require a root-cause fix before restoring them to the main suite.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-025",
+    "question": "What is the ideal ratio of automated tests to manual tests in an automation project?",
+    "answer": "There is no fixed ratio \u2014 it depends on product maturity, release frequency, and risk tolerance. A common guideline is 70:20:10 (unit:integration:E2E), but many teams find more value in a trophy-shaped distribution with heavy integration coverage. The key is avoiding over-investment in brittle UI tests while ensuring critical paths have automated coverage. Manual testing shifts to exploratory, usability, and edge cases that automation struggles with.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "medium",
+    "probability": 9,
+    "category": "automation"
+  },
+  {
+    "id": "auto-026",
+    "question": "What are fixtures and hooks in Playwright/Cypress and when would you use them?",
+    "answer": "Fixtures (Playwright) and hooks like before/after (Cypress) define setup and teardown logic that runs before or after tests. Playwright fixtures are dependency-injected objects (like page, context) that can be scoped to tests, suites, or the entire run. Use them for browser configuration, authentication state, test data setup, and cleanup. Well-structured fixtures eliminate repetitive setup code and ensure isolation between tests.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "easy",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-027",
+    "question": "How do you validate a JSON response schema in API testing?",
+    "answer": "Use schema validation libraries like Joi, Ajv, Zod, or built-in tools in Playwright/Cypress to assert the structure, types, and required fields of a JSON response. Define a schema object that mirrors the expected response shape \u2014 required fields, optional fields, nested objects, arrays, and data types. Schema validation catches contract violations (missing fields, wrong types) that value-level assertions miss, and serves as living documentation of the API contract.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-028",
+    "question": "How do you handle API request chaining in test automation?",
+    "answer": "Request chaining means using the response from one API call as input for the next (e.g., create an order, get its ID, then check its status). Store extracted values in variables and pass them to subsequent requests. In Playwright, you can chain async apiRequestContext calls within a test, or extract the logic into helper functions. Always handle failures in intermediate steps and include appropriate assertions at each stage.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-029",
+    "question": "What are some best practices for Playwright/Cypress locators?",
+    "answer": "Prefer user-facing attributes: role, label, text, and test IDs (data-testid). Avoid CSS class names and XPath that depend on DOM structure \u2014 they break with style changes or re-rendering. Use the most specific locator possible to avoid ambiguity, but not so specific that it becomes brittle. Keep locators in page objects or fixture files, never hard-coded in test logic.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "easy",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-030",
+    "question": "Explain how retries work in test automation and when they are appropriate.",
+    "answer": "Retries re-run a failed test automatically, typically 1\u20133 times, in an attempt to recover from transient failures (network glitches, timing). Playwright and Cypress support retries at the test or project level. Retries are a band-aid, not a fix \u2014 if a test consistently requires retries to pass, it is flaky and should be debugged. Limit retries to reliable environments and set a maximum to avoid masking real regressions.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-031",
+    "question": "What is SOLID and how does it apply to test framework design?",
+    "answer": "SOLID principles apply to test code: Single Responsibility (each test verifies one behavior), Open/Closed (extend test utilities without modifying them), Liskov Substitution (test doubles should behave like real objects), Interface Segregation (test utilities should have focused contracts), Dependency Inversion (tests depend on abstractions like page objects, not concrete selectors). Applying SOLID reduces test maintenance costs and improves readability.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-032",
+    "question": "How do you decide between BDD/Cucumber and a code-first test approach?",
+    "answer": "BDD with Gherkin is valuable when non-technical stakeholders need to read, write, or approve test scenarios \u2014 it creates a shared language. However, it adds parsing overhead, regex step definitions, and often leads to step explosion that makes tests harder to maintain than plain code. For most teams, code-first frameworks (Playwright Test, Cypress) are simpler and more maintainable. Reserve BDD for projects where cross-functional collaboration on test scenarios is a real need, not a theoretical one.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-033",
+    "question": "How do you set up mobile device emulation in Playwright?",
+    "answer": "Playwright provides built-in device descriptors (e.g., iPhone 12, Pixel 5) that configure viewport, user agent, touch events, and geolocation. You apply the device via browser.newContext({ ...devices['iPhone 13'] }) or in the Playwright config project definition. This allows running the same test suite against desktop and mobile viewports without separate mobile infrastructure.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-034",
+    "question": "What are some common causes of flaky tests?",
+    "answer": "Common causes include: timing issues (race between action and assertion), shared test data or global state (tests interfere with each other), async operations not awaited, environment-specific behavior (dev vs CI), and fragile selectors that match multiple or no elements. Flakiness erodes trust in the test suite \u2014 teams start ignoring failures \u2014 so each flaky test should be triaged, quarantined, and root-caused promptly.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-035",
+    "question": "How do you mock network requests in Playwright?",
+    "answer": "Playwright provides page.route() and page.context().route() to intercept and mock network requests. You can fulfill with custom data, abort requests, or modify responses on the fly. For API mocking, use page.route('**/api/**', handler) to intercept API calls. This enables testing error states, slow networks, and edge cases without requiring the backend to be available.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-036",
+    "question": "What is data-driven testing and how do you implement it?",
+    "answer": "Data-driven testing separates test logic from test data by parameterizing inputs from external sources \u2014 JSON, CSV, YAML, or databases. The same test runs multiple times with different data sets, reducing code duplication. Playwright Test supports this via test.each() with inline or imported arrays. It is especially useful for API testing where you validate the same endpoint against many input combinations.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "easy",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-037",
+    "question": "How does Playwright's tracing and viewer improve debugging?",
+    "answer": "Playwright records a trace file (trace.zip) containing a screencast, DOM snapshots, console logs, network requests, and source maps for each action in a test. The Trace Viewer (trace.playwright.dev) lets you step through each action, inspect the DOM state before/after, and see the exact network payloads. This dramatically reduces debugging time compared to reading logs or watching videos.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-038",
+    "question": "How do you handle environment-specific configuration in test automation?",
+    "answer": "Use environment variables and config files (e.g., playwright.config.ts with environment-specific projects). Store base URLs, credentials, and API endpoints outside test code \u2014 never hard-code them. Tools like dotenv load .env files per environment (dev, staging, prod). CI pipelines should inject environment variables securely via secrets management, not commit them to the repository.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-039",
+    "question": "What are the key advantages of API testing over UI testing?",
+    "answer": "API tests are faster (milliseconds vs seconds), more reliable (no DOM, no rendering), easier to debug (structured JSON responses), and run in parallel without resource contention. They catch integration bugs earlier in the pipeline and cover error states (status codes, schema validation) that UI tests often miss. However, API tests cannot verify visual layout, user experience, or client-side rendering \u2014 both layers are complementary.",
+    "topic": "API Test Automation",
+    "difficulty": "easy",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-040",
+    "question": "How do you manage shared state between tests in Playwright?",
+    "answer": "Playwright isolates each test with a new browser context by default, which provides separate storage, cookies, and session state. For tests that need authenticated state, use test.use({ storageState: 'auth.json' }) to restore saved session data. Never share variables between tests via module-level globals \u2014 use fixtures or return data from test setup.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 8,
+    "category": "automation"
+  },
+  {
+    "id": "auto-041",
+    "question": "Explain how process exit codes are used in test automation.",
+    "answer": "Test runners exit with code 0 if all tests pass and non-zero if any fail. CI pipelines interpret these codes to determine build status: exit 0 means the quality gate passed, non-zero (typically 1) blocks deployment. Custom exit codes can differentiate failure types \u2014 test failures, infrastructure issues, or configuration errors \u2014 though most teams use a single non-zero code for any failure.",
+    "topic": "General Programming for Automation",
+    "difficulty": "easy",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-042",
+    "question": "How do you integrate performance/load testing into an automation pipeline?",
+    "answer": "Script load scenarios in k6, Gatling, or JMeter that ramp virtual users and assert thresholds on p95 latency, error rate, and throughput \u2014 k6's thresholds fail the build automatically on breach. Run a lightweight smoke-load test on every change and heavier soak/stress runs nightly against a production-like environment. Keep performance suites separate from functional E2E so they don't slow the commit pipeline, and trend results over time to catch gradual regressions.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "hard",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-043",
+    "question": "How do you split tests across CI workers for optimal execution time?",
+    "answer": "Use dynamic test splitting (e.g., Playwright's sharding or Cypress Dashboard's balanced splitting) that distributes tests based on historical run times rather than counting files. This prevents one worker from being a bottleneck with slow tests. As a fallback, static sharding by spec file groups works if test times are roughly equal. Run smoke tests first and fail fast \u2014 there is no point running regression if critical paths are broken.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-044",
+    "question": "What are quality gates in CI/CD and how do you set them for test automation?",
+    "answer": "Quality gates are automated thresholds that must pass before a build proceeds: test pass rate, code coverage percentage, flaky rate, and performance benchmarks. For example: 100% pass rate on smoke tests, no critical bugs, flaky rate below 5%, and API contract compliance. Gates should be progressive \u2014 fast checks first (lint, unit), then integration, then E2E \u2014 so failures are caught early without wasting CI resources.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-045",
+    "question": "What are soft assertions and when should you use them?",
+    "answer": "Soft assertions (expect.soft in Playwright) record a failure but let the test keep running, so one execution can report several problems instead of stopping at the first. Use them when verifying multiple independent properties of a single state \u2014 several fields on a rendered page \u2014 so you see all failures at once. Avoid them when a later step depends on an earlier assertion being true; there a hard assertion should halt the test to prevent misleading, cascading errors.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-046",
+    "question": "What is the difference between a mock, a stub, and a fake in test automation?",
+    "answer": "A stub returns canned answers to calls made during the test (e.g., a function that always returns a specific JSON response). A mock is a stub that also verifies interactions \u2014 did X get called with Y arguments? A fake is a lightweight working implementation (e.g., an in-memory database). In API automated testing, mocks are most useful for verifying that requests were made correctly, while stubs are simpler for providing controlled responses.",
+    "topic": "General Programming for Automation",
+    "difficulty": "hard",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-047",
+    "question": "How do you configure timeouts properly in Playwright?",
+    "answer": "Playwright has layered timeouts: test timeout (maximum for the entire test), expect timeout (how long to wait for an assertion to pass), and action timeout (how long for click, fill, etc.). Set expect and action timeouts to 5\u201315 seconds, and the test timeout to 30\u201360 seconds depending on test complexity. Override timeouts per test when you know an operation is slow (e.g., file upload) to avoid false failures without globally increasing values.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-048",
+    "question": "How do you handle authentication in API test scripts?",
+    "answer": "For Basic Auth, send an Authorization header with Base64-encoded credentials. For Bearer tokens, call the login endpoint first, extract the token from the response, and store it for subsequent requests. For OAuth, implement the full token flow (client credentials or authorization code) in a fixture that runs before tests. Always store sensitive credentials in environment variables or CI secrets, never in test code.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-049",
+    "question": "How do you reuse authentication across tests with global setup?",
+    "answer": "Use a setup project (project dependency) or globalSetup that logs in once, then saves cookies and localStorage with context.storageState({ path }) to an auth file. Other projects load it via use: { storageState: 'auth.json' }, so every test starts already authenticated \u2014 eliminating repeated UI logins and cutting suite time dramatically. Generate a separate storage state per role (admin, user) and refresh it when tokens expire to avoid flaky auth failures.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-050",
+    "question": "How do you log effectively in test automation?",
+    "answer": "Use structured logging with the test runner's built-in logger (Playwright testInfo, Cypress cy.log) rather than console.log. Log key actions: page navigations, API calls, data setup, and assertion results. Include context (test name, iteration, environment) to make debugging easier. Avoid logging sensitive data (passwords, tokens). In CI, configure verbose logging for failed tests and summary-only logging for passing ones to reduce noise.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-051",
+    "question": "How do you organize tests in a monorepo vs a multirepo?",
+    "answer": "In a monorepo, test suites live alongside their application code in shared packages, enabling consistent tooling and cross-project test reuse. CI can run only the affected tests using dependency graph analysis. In a multirepo, each service owns its test suite independently, reducing blast radius but requiring duplicated infrastructure and making cross-service E2E tests harder to coordinate. Monorepos are generally preferred for test automation at scale due to shared configs and atomic changes.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "hard",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-052",
+    "question": "What are some strategies for reducing test execution time?",
+    "answer": "Parallelize across workers and CI machines. Split long E2E suites into smaller, focused tests. Use test tagging to run smoke tests on every commit while deferring full regression to nightly builds. Optimize setup by reusing authenticated state (storageState) instead of logging in fresh for each test. Move expensive assertions (visual diffs, heavy data setup) to API-level tests where possible, keeping UI tests fast and targeted.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-053",
+    "question": "How do you handle error handling patterns in test automation?",
+    "answer": "Wrap flaky operations in retry logic with exponential backoff. Use try/catch in test hooks to capture and log errors during setup and teardown without failing the test for infrastructure issues. Fail fast when critical setup (authentication, database connection) fails \u2014 there is no point running tests against a broken environment. In Playwright, use the test harness's built-in retry mechanism rather than custom try/catch loops for test-level retries.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-054",
+    "question": "What is the best way to set up a test environment for scaled automation?",
+    "answer": "Use containerized environments (Docker Compose) that spin up matching service versions per test run, ensuring consistency across CI and local runs. For E2E tests, deploy to isolated ephemeral environments (preview deployments) that are destroyed after the test suite completes. Use infrastructure as code (Terraform, Pulumi) to version and reproduce environments. Avoid shared staging environments where concurrent test runs interfere with each other.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "hard",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-055",
+    "question": "What are the four principles of the test automation manifesto?",
+    "answer": "The test automation manifesto advocates: 1) Tests are code \u2014 treat them with the same rigor as production code (code review, refactoring). 2) Test behavior, not methods \u2014 focus on business outcomes, not implementation details. 3) Tests must be reliable \u2014 flaky tests destroy trust and are worse than no tests. 4) Tests should be fast \u2014 slow tests discourage running them frequently. These principles guide sustainable automation practice.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "medium",
+    "probability": 7,
+    "category": "automation"
+  },
+  {
+    "id": "auto-056",
+    "question": "How does Cypress differ from Playwright in its execution model?",
+    "answer": "Cypress runs inside the browser alongside the application (in-process), giving it direct access to DOM events but limiting it to Chromium-based browsers. Playwright runs out-of-process using the CDP protocol, supporting Chromium, Firefox, and WebKit natively. Playwright's architecture enables parallel execution across multiple browsers out of the box, while Cypress requires the Dashboard or third-party tools for parallelism. Playwright also supports multiple browser contexts, tabs, and mobile emulation more naturally.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-057",
+    "question": "How do you maintain test code over time?",
+    "answer": "Treat test code as production code: peer-review pull requests, follow the same coding standards, and refactor regularly. Remove redundant tests, update locators when the UI changes, and retire tests that no longer add value. Schedule a maintenance budget (10\u201320% of automation time per sprint) for cleanup. Monitor flaky rate and execution time as early warning signs of test suite decay.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-058",
+    "question": "How do you test file downloads in Playwright?",
+    "answer": "Use page.waitForEvent('download') before triggering the download action, then access the download object to check the suggested filename, MIME type, or save it to disk. You can also cancel the download and verify the response headers if you only need to check the content type. Never assume the download path \u2014 always use the download object's methods.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-059",
+    "question": "What is the difference between pre-commit and nightly test suites?",
+    "answer": "Pre-commit suites run on every push and must be fast (<10 minutes) and reliable \u2014 unit tests, integration tests, and critical smoke tests. Nightly suites include the full regression, cross-browser tests, performance benchmarks, and data-intensive verification that would slow down developer feedback loops. The pre-commit suite acts as a safety net, while the nightly suite provides deep confidence before release.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-060",
+    "question": "How do you apply OOP principles to test code?",
+    "answer": "Encapsulation hides selector details behind page objects. Inheritance creates base test classes with shared setup, though composition via fixtures is preferred over deep inheritance. Polymorphism lets different page objects share common interfaces (LoginPage, AdminPage both implement Page). Abstraction defines high-level test steps (loginAsAdmin()) without exposing implementation details (click('#user'), fill('#pass')). These principles make test code more maintainable and reusable.",
+    "topic": "General Programming for Automation",
+    "difficulty": "easy",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-061",
+    "question": "How do you handle Promise rejection in test automation code?",
+    "answer": "Unhandled Promise rejections in test code can cause silent failures or test timeouts. Always catch rejections with .catch() or await in try/catch blocks, especially in setup and teardown. In Playwright, unhandled rejections from page.evaluate or network calls should be caught and logged. Many test runners (Jest, Playwright Test) fail the test automatically on unhandled rejections, but relying on this masks where the error actually occurred.",
+    "topic": "General Programming for Automation",
+    "difficulty": "hard",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-062",
+    "question": "What is a race condition in test automation and how do you prevent it?",
+    "answer": "A race condition in tests occurs when two asynchronous operations complete in unpredictable order, causing assertions to check state before the expected operation finishes. For example, clicking a button that triggers an API call, then immediately asserting a success message before the API responds. Prevent by using auto-waiting assertions, awaiting all async operations, and avoiding parallel actions that depend on each other.",
+    "topic": "General Programming for Automation",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-063",
+    "question": "How do you measure flaky rate and what is an acceptable threshold?",
+    "answer": "Flaky rate = (tests that passed on retry after initially failing / total test executions) \u00d7 100. Measure per CI run and track over time. An acceptable threshold is 1\u20135% \u2014 above 5%, the team's trust erodes and real failures get ignored. Above 10%, the test suite is considered unreliable and needs immediate attention. Enforce quality gates that block merges if flaky rate exceeds a set threshold.",
+    "topic": "Metrics & Observability",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-064",
+    "question": "How do Playwright's screenshot and video capture help with debugging?",
+    "answer": "Playwright can automatically capture screenshots on failure and record full videos of test runs. Screenshots show the exact page state at failure time, while videos capture the entire sequence leading up to the failure. In CI, these artifacts are critical for debugging because you cannot step through the test interactively. Configure in playwright.config with capture: 'on' or 'on-first-retry' to balance storage costs with debugging value.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "easy",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-065",
+    "question": "Explain how you would design a test suite following layered architecture.",
+    "answer": "A layered test architecture has three layers: 1) Test layer \u2014 contains test specs and scenario descriptions only, no implementation details. 2) Business layer \u2014 page objects or service objects that expose domain-level methods (loginAsAdmin, submitOrder). 3) Infrastructure layer \u2014 drivers, API clients, database connections, and utilities. Changes in the UI only affect the business layer, not the tests themselves. This separation aligns with the Single Responsibility Principle and makes the suite resilient to change.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "hard",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-066",
+    "question": "What are common challenges with BDD/Cucumber in practice?",
+    "answer": "Common issues include feature file duplication, step definition explosion (hundreds of overly specific regex steps), and additional parsing overhead in CI. Gherkin scenarios can become implementation details disguised as business language when teams aren't disciplined. Feature files also add a translation step that can introduce errors between the scenario and the code. BDD works best with a dedicated product owner or BA who actively writes scenarios; without that, it adds complexity without real benefit.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-067",
+    "question": "What is the difference between a test fixture and a factory?",
+    "answer": "A fixture provides a fixed baseline of state (a user, a database record) that tests depend on \u2014 it is the environment or data. A factory creates objects programmatically with configurable properties (UserFactory.create({ role: 'admin' })). Fixtures set up and tear down state per test scope, while factories generate varied test data within tests. In Playwright, fixtures also manage browser contexts and authentication state, making them more powerful than simple data helpers.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-068",
+    "question": "What metrics should a test automation dashboard track?",
+    "answer": "A dashboard should track: pass/fail rate over time, flaky rate (tests that pass on retry), execution duration trend (is the suite slowing down?), coverage trends (what percentage of user flows are automated), test distribution by layer (unit vs API vs E2E), and defect escape rate (bugs found in production that tests should have caught). These metrics help identify when the test suite is losing effectiveness and where to invest next.",
+    "topic": "Metrics & Observability",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-069",
+    "question": "How do you test GraphQL APIs in automation?",
+    "answer": "Send POST requests to the GraphQL endpoint with a { query, variables } payload. Validate the response structure matches the expected schema \u2014 GraphQL returns 200 even for application errors, so check the errors field separately from the data field. Test that queries return the exact fields requested (no over-fetching) and that mutations correctly modify data. Test null/error responses for nullable fields and authentication/authorization at the resolver level.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 6,
+    "category": "automation"
+  },
+  {
+    "id": "auto-070",
+    "question": "How do you test WebSocket or server-sent-event (real-time) features?",
+    "answer": "Playwright exposes page.on('websocket') to observe frames sent and received, letting you assert the client subscribes and reacts to pushed messages. For deterministic tests, drive the channel from the backend or a test harness and assert the resulting UI with web-first assertions rather than fixed waits. At the protocol level, a library like ws (Node) lets you connect directly to verify message contracts, ordering, and reconnection behavior independent of the UI.",
+    "topic": "API Test Automation",
+    "difficulty": "hard",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-071",
+    "question": "What is the difference between retries and re-run in flaky test management?",
+    "answer": "Retries automatically re-execute a failed test within the same CI run (configured in the test framework). A re-run is a manual or triggered re-execution of the entire CI pipeline for the same commit. Retries are the first line of defense against transient failures, while re-runs should be reserved for infrastructure failures (not flaky tests). Too many retries mask real issues; limit to 1\u20132 retries in CI.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-072",
+    "question": "How do you implement retry logic for HTTP requests in API tests?",
+    "answer": "Wrap the API call in a retry loop with exponential backoff: attempt the request, if it fails with a retryable status (429 Too Many Requests, 503 Service Unavailable), wait for an increasing interval (e.g., 1s, 2s, 4s) and retry up to a max count. Use a dedicated HTTP client that supports interceptors (axios, got) to apply retry logic globally. Only retry on transient errors, never on 4xx client errors like 400 or 401.",
+    "topic": "General Programming for Automation",
+    "difficulty": "hard",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-073",
+    "question": "Explain cross-browser testing strategy for a modern web application.",
+    "answer": "Run critical E2E smoke tests across all supported browsers (Chrome, Firefox, Safari, Edge) on every release. Defer full regression cross-browser runs to nightly or weekly, running most tests on a single primary browser (usually Chrome). Use Playwright's matrix in the config to define browser projects, and tag tests by browser compatibility risk. Mobile Safari and Chrome on Android should be included via emulation or cloud devices (BrowserStack, Sauce Labs).",
+    "topic": "Scaling & Strategy",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-074",
+    "question": "How do you calculate Mean Time to Detect and Mean Time to Fix in test automation?",
+    "answer": "MTTD measures the average time between a defect being introduced and a test failing (how quickly automation catches regressions). MTTF measures the average time from test failure notification to a fix being deployed. Track these from CI timestamps: commit time \u2192 first test failure time \u2192 fix merge time. Short MTTD means fast test execution and good coverage; short MTTF means the team responds quickly to failures.",
+    "topic": "Metrics & Observability",
+    "difficulty": "hard",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-075",
+    "question": "How does composition differ from inheritance in test code design?",
+    "answer": "Composition assembles test behavior from smaller, focused classes (a LoginPage has a FormComponent and a HeaderComponent). Inheritance creates hierarchies (class AdminPanelPage extends BasePage). Composition is preferred in test automation because it is more flexible, avoids deep inheritance chains, and makes it easier to share behavior across unrelated page objects. Playwright's fixture system is inherently compositional \u2014 you declare what you need rather than inheriting behavior.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-076",
+    "question": "How do you use test tagging to manage test execution?",
+    "answer": "Tags (@smoke, @regression, @critical, @slow) categorize tests so CI pipelines can run targeted subsets. For example: smoke tests on every commit (tag @smoke), full regression on main (tag @regression), and performance tests weekly (tag @performance). Playwright supports tags via test.describe with test.use({ tag: '@smoke' }) or grep. Tags also help organize reporting by allowing teams to filter results by category.",
+    "topic": "Scaling & Strategy",
+    "difficulty": "easy",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-077",
+    "question": "What is the defect escape rate and why does it matter?",
+    "answer": "Defect escape rate = (bugs found in production / total bugs found) \u00d7 100. It measures how often bugs slip through your test automation and QA process into production. A high escape rate (>10%) indicates coverage gaps, insufficient test scenarios, or inadequate test environments. If the rate is trending up, invest in adding test coverage for the areas where escapes are happening.",
+    "topic": "Metrics & Observability",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-078",
+    "question": "How do you handle dynamic elements in Playwright?",
+    "answer": "Use Playwright's auto-waiting \u2014 locators automatically wait for elements to appear. For elements that appear after an API call, use waitForResponse() or waitForLoadState('networkidle') to synchronize. Avoid arbitrary fixed waits; instead, wait for a specific element state with expect(element).toBeVisible() or locator.waitFor(). This ensures timing is driven by the actual application state, not a guess.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-079",
+    "question": "How do you test if an API paginates correctly?",
+    "answer": "Make the first request and assert the response includes pagination metadata (page, limit, total, next cursor or URL). Fetch the second page and verify it contains different data than the first. Ensure the total count matches across pages and that requesting a page beyond the last returns an empty array or appropriate error code. Also test boundary values: page 0 or negative numbers should return proper 4xx errors.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-080",
+    "question": "How do you approach test code review differently from production code review?",
+    "answer": "Test reviews focus on: does this test verify the right behavior? Is the assertion meaningful or does it pass for the wrong reason? Is the locator robust (not brittle like nth-child)? Are there flakiness risks (shared data, timing)? Does the test duplicate coverage that already exists? Is it properly isolated? Also check that the test follows team conventions and uses the correct test type (API vs UI vs unit) for what it is verifying.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-081",
+    "question": "When do you need native mobile automation (Appium) versus browser emulation?",
+    "answer": "Playwright/Cypress device emulation sets viewport, user agent, and touch but still runs a desktop browser engine, so it only validates responsive web behavior. Real native apps, or behaviors tied to the actual mobile OS (push notifications, biometrics, real mobile Safari/Chrome quirks, complex gestures), require Appium driving real devices/emulators or a cloud device farm (BrowserStack, Sauce Labs). Use emulation for fast responsive checks and reserve real-device runs for critical release smoke tests.",
+    "topic": "Specialized Testing",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-082",
+    "question": "How do you handle iframes in Playwright?",
+    "answer": "Use frameLocator() to target elements inside iframes: page.frameLocator('iframe[src*=\"payments\"]').getByRole('button', { name: 'Submit' }).click(). Frame locators return a FrameLocator object that supports the same locator methods as page. Always target the iframe by its unique attribute (src or title) rather than index, which is fragile.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-083",
+    "question": "Explain the concept of a quality gate in a CI/CD pipeline for test automation.",
+    "answer": "A quality gate is a set of automated checks that must pass before code progresses to the next pipeline stage. For example: unit tests must pass (gate 1), API contract tests must pass and code coverage > 80% (gate 2), E2E smoke tests must pass (gate 3). If any gate fails, the pipeline stops and the team is notified immediately. Gates should be progressively expensive \u2014 fast checks first \u2014 to minimize wasted CI time.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-084",
+    "question": "How do you mock a third-party API in Playwright?",
+    "answer": "Use page.route() to intercept requests to the third-party domain and fulfill with a custom response. For example: page.route('**/api/stripe/**', route => route.fulfill({ status: 200, body: mockStripeResponse })). This isolates your tests from external dependencies, avoids rate limits, and lets you test error scenarios easily. Clean up mocks in test teardown to prevent leakage to other tests.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-085",
+    "question": "How do you format test results for CI/CD integration?",
+    "answer": "Use standard formats: JUnit XML (supported by Jenkins, GitLab CI, CircleCI) and Allure JSON for rich reporting. Most test frameworks produce these natively or via reporters. CI tools parse JUnit XML to show pass/fail trends, duration, and failure messages per test. Allure adds screenshots, logs, and test steps for human-readable dashboards. Always publish test artifacts (reports, screenshots, videos, traces) as CI build artifacts for post-run analysis.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-086",
+    "question": "How do you test a SQL database as part of automation?",
+    "answer": "Connect to the test database directly using a lightweight driver (pg for PostgreSQL, mysql2 for MySQL) and run queries to verify state after API or UI operations. For example, create a user via the UI, then query the database to confirm the user record has the correct role. Clean up test data using transactions or dedicated cleanup scripts. Avoid testing through the API alone when you need to verify constraints, triggers, or data integrity.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-087",
+    "question": "What are the pillars of the Screenplay pattern?",
+    "answer": "Screenplay has four pillars: Actor (the user performing actions), Ability (what the actor can do \u2014 BrowseTheWeb, AuthenticateAPI), Interaction (actions the actor performs \u2014 Click, Enter, Submit), and Question (how the actor checks state \u2014 Text.of(), Value.of()). This separation makes tests highly readable and reusable across different domains. The pattern is especially useful for complex applications with multiple user roles, workflows, and interaction modes.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "hard",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-088",
+    "question": "How do you run a subset of tests based on changed files?",
+    "answer": "Use code coverage analysis or dependency graph tools to determine which tests exercise the changed code. Playwright and Cypress do not have built-in affected-test detection, but tools like Jest --onlyChanged or custom scripts that map spec files to source files work well. In monorepos, tools like Nx or Turborepo compute the dependency graph and run only tests affected by the change. This dramatically reduces CI feedback time for small changes.",
+    "topic": "CI/CD Integration",
+    "difficulty": "hard",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-089",
+    "question": "How do you implement a custom fixture in Playwright?",
+    "answer": "Export a base test from Playwright and extend it with custom fixtures using test.extend(). For example, create an authenticatedPage fixture that logs in once per worker and stores the session. Fixtures can be scoped to worker (shared across tests in the same worker) or test (fresh per test). Custom fixtures follow the factory pattern \u2014 you define a tuple with fixture name, setup function, and optional teardown.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "hard",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-090",
+    "question": "Why is shared mutable state dangerous in test automation?",
+    "answer": "Shared mutable state (global variables, database records, local storage) causes test order dependencies \u2014 Test B passes when run after Test A but fails when run alone. This makes tests non-deterministic and impossible to parallelize safely. Always isolate test state: use fresh browser contexts per test, clean up database records in teardown, and avoid module-level variables that persist between tests.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "easy",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-091",
+    "question": "How do you test behavior under poor or failing network conditions?",
+    "answer": "Use page.route() to delay, abort, or fail specific requests, and CDP (newCDPSession + Network.emulateNetworkConditions) to simulate offline, slow 3G, or high latency. This verifies loading states, timeouts, retry logic, and graceful degradation without depending on a real flaky network. Combine with route fulfillment to return specific error responses (500, 503) and confirm the UI shows the correct error and recovery behavior.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-092",
+    "question": "What is the cost-of-change curve and how does it relate to test automation?",
+    "answer": "The cost-of-change curve shows that fixing a bug becomes exponentially more expensive the later it is found \u2014 cheap during design, expensive in production. Test automation flattens this curve by catching regressions early in the development cycle. Unit and API tests catch issues before they reach UI integration, reducing the cost of fixes. This is the fundamental economic argument for shifting testing left with automation.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-093",
+    "question": "How does Playwright handle dialogs (alerts, confirms, prompts)?",
+    "answer": "Playwright auto-dismisses dialogs by default, but you can listen for them with page.on('dialog', handler) to accept, dismiss, or provide prompt text. For example, to accept a confirmation dialog: page.on('dialog', dialog => dialog.accept()). Alternatively, use page.once('dialog') for one-time handlers. Always register the listener before the action that triggers the dialog.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-094",
+    "question": "How do you assert performance SLAs within functional API tests?",
+    "answer": "Measure elapsed time around an apiRequestContext call (or read timing from the response) and assert it stays under an agreed budget, e.g. p95 < 300ms. Lightweight latency assertions in functional API tests catch gross regressions early, but they are not a substitute for dedicated load testing under real concurrency. Keep thresholds environment-aware — CI infrastructure is slower than production — to avoid false failures.",
+    "topic": "API Test Automation",
+    "difficulty": "medium",
+    "probability": 5,
+    "category": "automation"
+  },
+  {
+    "id": "auto-095",
+    "question": "How do you configure environment variables for different test environments?",
+    "answer": "Use .env files per environment (.env.dev, .env.staging, .env.prod) with a library like dotenv to load the correct file. CI pipelines inject environment variables via secrets management (GitHub Actions secrets, GitLab CI variables). Never commit .env files with real secrets \u2014 use .env.example as a template. In Playwright, access variables via process.env.BASE_URL and type them for safety.",
+    "topic": "General Programming for Automation",
+    "difficulty": "easy",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-096",
+    "question": "What is regression testing and how does automation change its execution?",
+    "answer": "Regression testing verifies that new code changes have not broken existing functionality. Without automation, regression is manual, slow, and often skipped \u2014 leading to production escapes. Automation makes regression fast and repeatable: running hundreds of tests in minutes instead of days. The challenge is maintaining the regression suite as the product grows \u2014 it requires ongoing investment to keep tests relevant, fast, and non-flaky.",
+    "topic": "Automation Fundamentals",
+    "difficulty": "easy",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-097",
+    "question": "How do you handle environment-specific wait conditions in Playwright?",
+    "answer": "Use environment-specific timeout configuration: shorter timeouts for local dev (fast API responses) and longer for CI (slower infrastructure). Set these via environment variables or per-project config in playwright.config.ts. Avoid hard-coded waits \u2014 instead, wait for specific element states (toBeVisible, toBeEnabled) which work regardless of environment speed. The only acceptable waitForTimeout is for debugging or animation completions that cannot be observed otherwise.",
+    "topic": "Playwright / Cypress",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-098",
+    "question": "How does the single responsibility principle apply to test design?",
+    "answer": "Each test should verify exactly one behavior \u2014 the test name should describe a single outcome. If a test asserts multiple things, split it into smaller focused tests. This makes it easier to identify which behavior broke when a test fails, and reduces the risk of cascading failures. A corollary: each page object or utility class should have one clear responsibility (navigation, form handling, data setup), not become a grab-bag of unrelated methods.",
+    "topic": "Architecture & Patterns",
+    "difficulty": "medium",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-099",
+    "question": "How do you team-own test quality and accountability?",
+    "answer": "Test quality is a shared responsibility, not just the QA team's. Developers should write or review unit/integration tests, QA should focus on E2E and exploratory testing, and the whole team should triage flaky tests within the same sprint. Establish a 'test health' metric visible on team dashboards. Rotate a 'test guardian' role responsible for fixing flaky tests and improving test infrastructure each sprint.",
+    "topic": "Flaky Tests & Maintenance",
+    "difficulty": "hard",
+    "probability": 4,
+    "category": "automation"
+  },
+  {
+    "id": "auto-100",
+    "question": "How do you use containers for test execution in CI/CD?",
+    "answer": "Containers (Docker) ensure the test environment is identical across local, CI, and production \u2014 same OS packages, browser versions, and Node/Python runtimes. Run tests inside a container that matches the production base image to eliminate environment-specific failures. Use Docker Compose to spin up dependent services (database, Redis, API server) alongside the test runner. Containers also simplify CI configuration: the pipeline pulls an image and runs it, no manual setup.",
+    "topic": "CI/CD Integration",
+    "difficulty": "medium",
+    "probability": 3,
+    "category": "automation"
+  }
+]

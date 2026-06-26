@@ -1,0 +1,14 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+
+# vercel
+.vercel/
+
+# playwright mcp cache
+.playwright-mcp/
+
+# os
+.DS_Store

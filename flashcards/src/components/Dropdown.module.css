@@ -1,0 +1,79 @@
+.wrapper {
+  position: relative;
+  min-width: 260px;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 0;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.trigger:hover {
+  border-bottom-color: rgba(167, 139, 250, 0.4);
+}
+.trigger:focus-visible {
+  outline: none;
+  border-bottom-color: rgba(167, 139, 250, 0.6);
+}
+.disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.disabled:hover {
+  border-bottom-color: rgba(255,255,255,0.15);
+}
+
+.value {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrow {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.3);
+  flex-shrink: 0;
+}
+
+.list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding-top: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+.item {
+  padding: 6px 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.6);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.1s;
+  outline: none;
+}
+.item:hover,
+.item:focus-visible {
+  border-bottom-color: rgba(167, 139, 250, 0.5);
+  color: rgba(255,255,255,0.85);
+}
+.selected {
+  color: rgba(255,255,255,0.85);
+  border-bottom-color: rgba(167, 139, 250, 0.25);
+}
