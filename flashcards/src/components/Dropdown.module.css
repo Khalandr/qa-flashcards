@@ -77,3 +77,22 @@
   color: rgba(255,255,255,0.85);
   border-bottom-color: rgba(167, 139, 250, 0.25);
 }
+
+@media (max-width: 640px) {
+  .wrapper {
+    min-width: 0;
+    width: 100%;
+    max-width: 360px;
+  }
+  .trigger {
+    padding: 10px 0;
+    font-size: 0.9rem;
+  }
+  .item {
+    padding: 10px 4px;
+    font-size: 0.9rem;
+  }
+  .list {
+    max-height: 220px;
+  }
+}

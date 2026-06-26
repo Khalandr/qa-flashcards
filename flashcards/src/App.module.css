@@ -17,6 +17,7 @@ body {
 
 .app {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -52,4 +53,19 @@ body {
 .empty {
   color: rgba(255,255,255,0.2);
   font-size: 0.9rem;
+}
+
+@media (max-width: 640px) {
+  .header {
+    padding: 10px 12px;
+  }
+  .body {
+    padding: 12px;
+    align-items: stretch;
+  }
+  .center {
+    gap: 14px;
+    justify-content: center;
+    flex: 1;
+  }
 }
