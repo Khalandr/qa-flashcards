@@ -12,10 +12,13 @@ interface Props {
   hasPrev: boolean
 }
 
-const SWIPE_THRESHOLD = 80 // px to trigger navigation
+const SWIPE_THRESHOLD = 70 // px to trigger navigation
 const TAP_SLOP = 10 // px of movement still counted as a tap
 
-const DEFAULT_TRANSITION = 'transform 0.25s ease-out'
+// Slow, smooth easing for both the fly-out and the slide-in of the next card.
+const ANIM = 'transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.42s ease-out'
+const ANIM_MS = 420
+const DEFAULT_TRANSITION = ANIM
 
 export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasPrev }: Props) {
   const frontRef = useRef<HTMLDivElement>(null)
@@ -62,19 +65,24 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
 
   const flyOut = useCallback(
     (dir: -1 | 1) => {
-      const w = typeof window !== 'undefined' ? window.innerWidth : 800
-      setTransition(DEFAULT_TRANSITION)
-      setDragX(dir * (w + 120))
+      const off = (typeof window !== 'undefined' ? window.innerWidth : 800) + 140
+      // 1. animate the current card off-screen
+      setTransition(ANIM)
+      setDragX(dir * off)
       window.setTimeout(() => {
+        // 2. swap to the next/prev card and drop it on the opposite edge (no transition)
         if (dir < 0) onNext()
         else onPrev()
         setTransition('none')
-        setDragX(0)
-        // restore default transition on a later frame so the reset is instant
+        setDragX(-dir * off)
+        // 3. on the next frames, glide the incoming card to center
         requestAnimationFrame(() =>
-          requestAnimationFrame(() => setTransition(DEFAULT_TRANSITION)),
+          requestAnimationFrame(() => {
+            setTransition(ANIM)
+            setDragX(0)
+          }),
         )
-      }, 230)
+      }, ANIM_MS)
     },
     [onNext, onPrev],
   )
@@ -110,9 +118,9 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
     [flyOut, hasNext, hasPrev, onFlip],
   )
 
-  const opacity = Math.max(0.35, 1 - Math.abs(dragX) / 650)
+  const opacity = Math.max(0.45, 1 - Math.abs(dragX) / 900)
   const cardStyle = {
-    transform: `translateX(${dragX}px) rotate(${dragX / 28}deg)`,
+    transform: `translateX(${dragX}px) rotate(${dragX / 34}deg)`,
     transition,
     opacity,
   }
