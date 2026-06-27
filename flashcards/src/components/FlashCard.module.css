@@ -36,13 +36,30 @@
 .card {
   flex: 1;
   min-height: 380px;
-  perspective: 1200px;
   cursor: pointer;
   position: relative;
   touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+}
+
+/* drag layer — horizontal translate + tilt; owns the perspective for the flip */
+.swiper {
+  position: absolute;
+  inset: 0;
+  perspective: 1200px;
   will-change: transform;
+}
+
+/* flip layer — rotateY around the card, independent of the drag transform */
+.flipper {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.flipper.flipped {
+  transform: rotateY(180deg);
 }
 
 .front, .back {
@@ -60,13 +77,7 @@
   border: 1px solid rgba(255,255,255,0.08);
   box-shadow: 0 8px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
   backdrop-filter: blur(20px);
-  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   min-height: 380px;
-  pointer-events: none;
-}
-
-.front {
-  pointer-events: auto;
 }
 
 .front::before, .back::before {
@@ -80,16 +91,6 @@
 
 .back {
   transform: rotateY(180deg);
-}
-
-.flipped .front {
-  transform: rotateY(180deg);
-  pointer-events: none;
-}
-
-.flipped .back {
-  transform: rotateY(0deg);
-  pointer-events: auto;
 }
 
 .text {

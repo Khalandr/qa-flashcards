@@ -18,20 +18,17 @@ const TAP_SLOP = 10 // px of movement still counted as a tap
 // Slow, smooth easing for both the fly-out and the slide-in of the next card.
 const ANIM = 'transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.42s ease-out'
 const ANIM_MS = 420
-const DEFAULT_TRANSITION = ANIM
 
 export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasPrev }: Props) {
   const frontRef = useRef<HTMLDivElement>(null)
   const backRef = useRef<HTMLDivElement>(null)
 
   const [dragX, setDragX] = useState(0)
-  const [transition, setTransition] = useState(DEFAULT_TRANSITION)
-  const gesture = useRef<{ x: number; y: number; axis: 'h' | 'v' | null; active: boolean }>({
-    x: 0,
-    y: 0,
-    axis: null,
-    active: false,
-  })
+  const [transition, setTransition] = useState(ANIM)
+  const animating = useRef(false)
+  const gesture = useRef<{ x: number; y: number; dx: number; axis: 'h' | 'v' | null; active: boolean }>(
+    { x: 0, y: 0, dx: 0, axis: null, active: false },
+  )
 
   const handleMouseMove = useCallback((e: React.MouseEvent, el: HTMLDivElement | null) => {
     if (!el) return
@@ -42,8 +39,14 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
     el.style.setProperty('--mouse-y', `${y}%`)
   }, [])
 
+  const reset = useCallback(() => {
+    setTransition(ANIM)
+    setDragX(0)
+  }, [])
+
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    gesture.current = { x: e.clientX, y: e.clientY, axis: null, active: true }
+    if (animating.current) return
+    gesture.current = { x: e.clientX, y: e.clientY, dx: 0, axis: null, active: true }
     setTransition('none')
     try {
       ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
@@ -57,6 +60,7 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
     if (!g.active) return
     const dx = e.clientX - g.x
     const dy = e.clientY - g.y
+    g.dx = dx
     if (g.axis === null && (Math.abs(dx) > TAP_SLOP || Math.abs(dy) > TAP_SLOP)) {
       g.axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
     }
@@ -66,6 +70,7 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
   const flyOut = useCallback(
     (dir: -1 | 1) => {
       const off = (typeof window !== 'undefined' ? window.innerWidth : 800) + 140
+      animating.current = true
       // 1. animate the current card off-screen
       setTransition(ANIM)
       setDragX(dir * off)
@@ -80,6 +85,9 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
           requestAnimationFrame(() => {
             setTransition(ANIM)
             setDragX(0)
+            window.setTimeout(() => {
+              animating.current = false
+            }, ANIM_MS)
           }),
         )
       }, ANIM_MS)
@@ -92,17 +100,14 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
       const g = gesture.current
       if (!g.active) return
       g.active = false
-      const dx = e.clientX - g.x
-      const dy = e.clientY - g.y
-
-      // Tap (negligible movement) flips the card.
-      if (g.axis !== 'h' && Math.abs(dx) < TAP_SLOP && Math.abs(dy) < TAP_SLOP) {
-        onFlip()
-        setTransition(DEFAULT_TRANSITION)
-        setDragX(0)
-        return
+      try {
+        ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+      } catch {
+        /* ignore */
       }
+      const dx = g.dx
 
+      // Horizontal swipe past the threshold navigates.
       if (g.axis === 'h' && dx <= -SWIPE_THRESHOLD && hasNext) {
         flyOut(-1)
         return
@@ -111,15 +116,29 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
         flyOut(1)
         return
       }
-      // snap back
-      setTransition(DEFAULT_TRANSITION)
-      setDragX(0)
+      // Tap (no real movement, never became a drag) flips the card.
+      if (g.axis === null && Math.abs(dx) < TAP_SLOP) {
+        onFlip()
+        reset()
+        return
+      }
+      // Anything else (short/incomplete swipe, vertical scroll): snap back.
+      reset()
     },
-    [flyOut, hasNext, hasPrev, onFlip],
+    [flyOut, hasNext, hasPrev, onFlip, reset],
   )
 
+  // The browser aborted the gesture (e.g. it took over for scrolling). Never
+  // navigate or flip on a cancel — just settle the card back into place.
+  const onPointerCancel = useCallback(() => {
+    const g = gesture.current
+    if (!g.active) return
+    g.active = false
+    reset()
+  }, [reset])
+
   const opacity = Math.max(0.45, 1 - Math.abs(dragX) / 900)
-  const cardStyle = {
+  const swiperStyle = {
     transform: `translateX(${dragX}px) rotate(${dragX / 34}deg)`,
     transition,
     opacity,
@@ -137,26 +156,31 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
       </button>
 
       <div
-        className={`${styles.card} ${flipped ? styles.flipped : ''}`}
-        style={cardStyle}
+        className={styles.card}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
+        onPointerCancel={onPointerCancel}
       >
-        <div
-          ref={frontRef}
-          className={styles.front}
-          onMouseMove={(e) => handleMouseMove(e, frontRef.current)}
-        >
-          <p className={styles.text}>{card.question}</p>
-        </div>
-        <div
-          ref={backRef}
-          className={styles.back}
-          onMouseMove={(e) => handleMouseMove(e, backRef.current)}
-        >
-          <p className={styles.text}>{card.answer}</p>
+        {/* drag layer: horizontal translate + tilt, independent of the flip */}
+        <div className={styles.swiper} style={swiperStyle}>
+          {/* flip layer: rotateY, independent of the drag */}
+          <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
+            <div
+              ref={frontRef}
+              className={styles.front}
+              onMouseMove={(e) => handleMouseMove(e, frontRef.current)}
+            >
+              <p className={styles.text}>{card.question}</p>
+            </div>
+            <div
+              ref={backRef}
+              className={styles.back}
+              onMouseMove={(e) => handleMouseMove(e, backRef.current)}
+            >
+              <p className={styles.text}>{card.answer}</p>
+            </div>
+          </div>
         </div>
       </div>
 
