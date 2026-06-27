@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import type { FlashCard } from '../types'
 
 import qaRaw from '../data/qa-fundamentals.json'
@@ -27,13 +27,45 @@ for (const s of sets) {
   categoriesBySet[s] = [...new Set(allCards.filter((c) => c.set === s).map((c) => c.category))].sort()
 }
 
+// ---- persistence ----
+const STORAGE_KEY = 'flashcards-state-v1'
+interface Saved {
+  set?: string
+  category?: string
+  topic?: string
+  search?: string
+  cardId?: string
+}
+function loadSaved(): Saved {
+  try {
+    if (typeof localStorage === 'undefined') return {}
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') || {}
+  } catch {
+    return {}
+  }
+}
+const saved = loadSaved()
+
+// Resolve valid initial filter values from saved state (falling back to defaults).
+const initSet = saved.set && sets.includes(saved.set) ? saved.set : sets[0] || ''
+const initCats = categoriesBySet[initSet] || []
+const initCategory: 'all' | string =
+  saved.category && (saved.category === 'all' || initCats.includes(saved.category))
+    ? saved.category
+    : 'all'
+const initTopicScope = allCards
+  .filter((c) => c.set === initSet && (initCategory === 'all' || c.category === initCategory))
+  .map((c) => c.topic)
+const initTopic = saved.topic && initTopicScope.includes(saved.topic) ? saved.topic : ''
+const initSearch = typeof saved.search === 'string' ? saved.search : ''
+
 export function useFlashCards() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
-  const [set, setSet] = useState<string>(sets[0] || '')
-  const [category, setCategory] = useState<'all' | string>('all')
-  const [topic, setTopic] = useState('')
-  const [search, setSearch] = useState('')
+  const [set, setSet] = useState<string>(initSet)
+  const [category, setCategory] = useState<'all' | string>(initCategory)
+  const [topic, setTopic] = useState(initTopic)
+  const [search, setSearch] = useState(initSearch)
 
   const filteredCards = useMemo(() => {
     return allCards
@@ -54,6 +86,30 @@ export function useFlashCards() {
       })
       .sort((a, b) => b.probability - a.probability)
   }, [set, category, topic, search])
+
+  // Restore the last viewed card once, after the filtered list is available.
+  const restored = useRef(false)
+  useEffect(() => {
+    if (restored.current) return
+    restored.current = true
+    if (saved.cardId) {
+      const idx = filteredCards.findIndex((c) => c.id === saved.cardId)
+      if (idx > 0) setCurrentIndex(idx)
+    }
+  }, [filteredCards])
+
+  // Persist filters + current card on every change.
+  useEffect(() => {
+    try {
+      if (typeof localStorage === 'undefined') return
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ set, category, topic, search, cardId: filteredCards[currentIndex]?.id }),
+      )
+    } catch {
+      /* ignore */
+    }
+  }, [set, category, topic, search, currentIndex, filteredCards])
 
   const availableCategories = useMemo(() => categoriesBySet[set] || [], [set])
 
@@ -93,18 +149,14 @@ export function useFlashCards() {
   }, [])
 
   const nextCard = useCallback(() => {
-    if (currentIndex < filteredCards.length - 1) {
-      setCurrentIndex((i) => i + 1)
-      setFlipped(false)
-    }
-  }, [currentIndex, filteredCards.length])
+    setCurrentIndex((i) => (i < filteredCards.length - 1 ? i + 1 : i))
+    setFlipped(false)
+  }, [filteredCards.length])
 
   const prevCard = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((i) => i - 1)
-      setFlipped(false)
-    }
-  }, [currentIndex])
+    setCurrentIndex((i) => (i > 0 ? i - 1 : i))
+    setFlipped(false)
+  }, [])
 
   return {
     currentCard,

@@ -39,6 +39,10 @@
   perspective: 1200px;
   cursor: pointer;
   position: relative;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
 }
 
 .front, .back {
