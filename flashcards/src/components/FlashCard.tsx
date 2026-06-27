@@ -15,9 +15,8 @@ interface Props {
 const SWIPE_THRESHOLD = 70 // px to trigger navigation
 const TAP_SLOP = 10 // px of movement still counted as a tap
 
-// Slow, smooth easing for both the fly-out and the slide-in of the next card.
-const ANIM = 'transform 0.42s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.42s ease-out'
-const ANIM_MS = 420
+// Slow, smooth easing for the slide-in of the next card.
+const ANIM = 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease-out'
 
 export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasPrev }: Props) {
   const frontRef = useRef<HTMLDivElement>(null)
@@ -25,7 +24,6 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
 
   const [dragX, setDragX] = useState(0)
   const [transition, setTransition] = useState(ANIM)
-  const animating = useRef(false)
   const gesture = useRef<{ x: number; y: number; dx: number; axis: 'h' | 'v' | null; active: boolean }>(
     { x: 0, y: 0, dx: 0, axis: null, active: false },
   )
@@ -45,7 +43,8 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
   }, [])
 
   const onPointerDown = useCallback((e: React.PointerEvent) => {
-    if (animating.current) return
+    // Start a fresh gesture. This is never blocked, so a new swipe can begin
+    // even while the previous card is still sliding in.
     gesture.current = { x: e.clientX, y: e.clientY, dx: 0, axis: null, active: true }
     setTransition('none')
     try {
@@ -61,36 +60,32 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
     const dx = e.clientX - g.x
     const dy = e.clientY - g.y
     g.dx = dx
+    // Lock the axis once movement is clearly intentional, biased to horizontal.
     if (g.axis === null && (Math.abs(dx) > TAP_SLOP || Math.abs(dy) > TAP_SLOP)) {
-      g.axis = Math.abs(dx) > Math.abs(dy) ? 'h' : 'v'
+      g.axis = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v'
     }
+    // Allow a clearly-horizontal drag to take over even if it started vertical.
+    if (g.axis === 'v' && Math.abs(dx) > Math.abs(dy) + 24) g.axis = 'h'
     if (g.axis === 'h') setDragX(dx)
   }, [])
 
-  const flyOut = useCallback(
+  // Commit navigation immediately, then slide the incoming card in from the
+  // side it travelled from. No delayed card-swap, so input is never blocked.
+  const navigate = useCallback(
     (dir: -1 | 1) => {
       const off = (typeof window !== 'undefined' ? window.innerWidth : 800) + 140
-      animating.current = true
-      // 1. animate the current card off-screen
-      setTransition(ANIM)
-      setDragX(dir * off)
-      window.setTimeout(() => {
-        // 2. swap to the next/prev card and drop it on the opposite edge (no transition)
-        if (dir < 0) onNext()
-        else onPrev()
-        setTransition('none')
-        setDragX(-dir * off)
-        // 3. on the next frames, glide the incoming card to center
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => {
-            setTransition(ANIM)
-            setDragX(0)
-            window.setTimeout(() => {
-              animating.current = false
-            }, ANIM_MS)
-          }),
-        )
-      }, ANIM_MS)
+      if (dir < 0) onNext()
+      else onPrev()
+      setTransition('none')
+      setDragX(-dir * off)
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          // If the user has already grabbed the card again, let their drag win.
+          if (gesture.current.active) return
+          setTransition(ANIM)
+          setDragX(0)
+        }),
+      )
     },
     [onNext, onPrev],
   )
@@ -105,19 +100,23 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
       } catch {
         /* ignore */
       }
-      const dx = g.dx
+      const dx = e.clientX - g.x
+      const dy = e.clientY - g.y
+      // Treat as horizontal if the axis locked horizontal, or it's a fast flick
+      // whose net movement is clearly horizontal.
+      const horizontal =
+        g.axis === 'h' || (g.axis !== 'v' && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= SWIPE_THRESHOLD)
 
-      // Horizontal swipe past the threshold navigates.
-      if (g.axis === 'h' && dx <= -SWIPE_THRESHOLD && hasNext) {
-        flyOut(-1)
+      if (horizontal && dx <= -SWIPE_THRESHOLD && hasNext) {
+        navigate(-1)
         return
       }
-      if (g.axis === 'h' && dx >= SWIPE_THRESHOLD && hasPrev) {
-        flyOut(1)
+      if (horizontal && dx >= SWIPE_THRESHOLD && hasPrev) {
+        navigate(1)
         return
       }
       // Tap (no real movement, never became a drag) flips the card.
-      if (g.axis === null && Math.abs(dx) < TAP_SLOP) {
+      if (g.axis === null && Math.abs(dx) < TAP_SLOP && Math.abs(dy) < TAP_SLOP) {
         onFlip()
         reset()
         return
@@ -125,7 +124,7 @@ export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasP
       // Anything else (short/incomplete swipe, vertical scroll): snap back.
       reset()
     },
-    [flyOut, hasNext, hasPrev, onFlip, reset],
+    [navigate, hasNext, hasPrev, onFlip, reset],
   )
 
   // The browser aborted the gesture (e.g. it took over for scrolling). Never
