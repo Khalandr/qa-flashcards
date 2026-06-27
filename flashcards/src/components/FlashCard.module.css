@@ -33,22 +33,19 @@
   visibility: hidden;
 }
 
+/* drag layer (Framer Motion) — owns the perspective for the flip */
 .card {
   flex: 1;
   min-height: 380px;
-  cursor: pointer;
+  cursor: grab;
   position: relative;
-  touch-action: pan-y;
+  perspective: 1200px;
   user-select: none;
   -webkit-user-select: none;
-}
-
-/* drag layer — horizontal translate + tilt; owns the perspective for the flip */
-.swiper {
-  position: absolute;
-  inset: 0;
-  perspective: 1200px;
   will-change: transform;
+}
+.card:active {
+  cursor: grabbing;
 }
 
 /* flip layer — rotateY around the card, independent of the drag transform */
@@ -73,10 +70,9 @@
   justify-content: center;
   padding: 44px 36px;
   border-radius: 24px;
-  background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 8px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
-  backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, #1c1c27, #131320);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 8px 48px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06);
   min-height: 380px;
 }
 

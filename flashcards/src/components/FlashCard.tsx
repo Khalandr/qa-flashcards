@@ -1,4 +1,5 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback } from 'react'
+import { motion, useMotionValue, useTransform, animate, type PanInfo } from 'framer-motion'
 import type { FlashCard as FlashCardType } from '../types'
 import styles from './FlashCard.module.css'
 
@@ -12,180 +13,90 @@ interface Props {
   hasPrev: boolean
 }
 
-const SWIPE_THRESHOLD = 70 // px to trigger navigation
-const TAP_SLOP = 10 // px of movement still counted as a tap
-
-// Slow, smooth easing for the slide-in of the next card.
-const ANIM = 'transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1), opacity 0.4s ease-out'
+const SWIPE_DIST = 80 // px of horizontal travel that counts as a swipe
+const SWIPE_VEL = 450 // px/s flick velocity that counts as a swipe
 
 export function FlashCard({ card, flipped, onFlip, onNext, onPrev, hasNext, hasPrev }: Props) {
-  const frontRef = useRef<HTMLDivElement>(null)
-  const backRef = useRef<HTMLDivElement>(null)
+  const x = useMotionValue(0)
+  const rotate = useTransform(x, [-260, 260], [-9, 9])
+  const opacity = useTransform(x, [-340, -140, 0, 140, 340], [0.35, 1, 1, 1, 0.35])
 
-  const [dragX, setDragX] = useState(0)
-  const [transition, setTransition] = useState(ANIM)
-  const gesture = useRef<{ x: number; y: number; dx: number; axis: 'h' | 'v' | null; active: boolean }>(
-    { x: 0, y: 0, dx: 0, axis: null, active: false },
-  )
+  const screenW = () => (typeof window !== 'undefined' ? window.innerWidth : 800) + 140
 
-  const handleMouseMove = useCallback((e: React.MouseEvent, el: HTMLDivElement | null) => {
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    el.style.setProperty('--mouse-x', `${x}%`)
-    el.style.setProperty('--mouse-y', `${y}%`)
-  }, [])
-
-  const reset = useCallback(() => {
-    setTransition(ANIM)
-    setDragX(0)
-  }, [])
-
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    // Start a fresh gesture. This is never blocked, so a new swipe can begin
-    // even while the previous card is still sliding in.
-    gesture.current = { x: e.clientX, y: e.clientY, dx: 0, axis: null, active: true }
-    setTransition('none')
-    try {
-      ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
-    } catch {
-      /* ignore */
-    }
-  }, [])
-
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    const g = gesture.current
-    if (!g.active) return
-    const dx = e.clientX - g.x
-    const dy = e.clientY - g.y
-    g.dx = dx
-    // Lock the axis once movement is clearly intentional, biased to horizontal.
-    if (g.axis === null && (Math.abs(dx) > TAP_SLOP || Math.abs(dy) > TAP_SLOP)) {
-      g.axis = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v'
-    }
-    // Allow a clearly-horizontal drag to take over even if it started vertical.
-    if (g.axis === 'v' && Math.abs(dx) > Math.abs(dy) + 24) g.axis = 'h'
-    if (g.axis === 'h') setDragX(dx)
-  }, [])
-
-  // Commit navigation immediately, then slide the incoming card in from the
-  // side it travelled from. No delayed card-swap, so input is never blocked.
-  const navigate = useCallback(
+  // dir: -1 = next (card exits left), +1 = prev (card exits right)
+  const go = useCallback(
     (dir: -1 | 1) => {
-      const off = (typeof window !== 'undefined' ? window.innerWidth : 800) + 140
-      if (dir < 0) onNext()
-      else onPrev()
-      setTransition('none')
-      setDragX(-dir * off)
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          // If the user has already grabbed the card again, let their drag win.
-          if (gesture.current.active) return
-          setTransition(ANIM)
-          setDragX(0)
-        }),
-      )
+      const w = screenW()
+      animate(x, dir * w, {
+        duration: 0.22,
+        ease: [0.4, 0, 1, 1],
+        onComplete: () => {
+          if (dir < 0) onNext()
+          else onPrev()
+          // place the incoming card on the opposite edge, then glide it in
+          x.set(-dir * w)
+          animate(x, 0, { type: 'spring', stiffness: 280, damping: 32 })
+        },
+      })
     },
-    [onNext, onPrev],
+    [onNext, onPrev, x],
   )
 
-  const onPointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      const g = gesture.current
-      if (!g.active) return
-      g.active = false
-      try {
-        ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
-      } catch {
-        /* ignore */
-      }
-      const dx = e.clientX - g.x
-      const dy = e.clientY - g.y
-      // Treat as horizontal if the axis locked horizontal, or it's a fast flick
-      // whose net movement is clearly horizontal.
-      const horizontal =
-        g.axis === 'h' || (g.axis !== 'v' && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) >= SWIPE_THRESHOLD)
-
-      if (horizontal && dx <= -SWIPE_THRESHOLD && hasNext) {
-        navigate(-1)
-        return
-      }
-      if (horizontal && dx >= SWIPE_THRESHOLD && hasPrev) {
-        navigate(1)
-        return
-      }
-      // Tap (no real movement, never became a drag) flips the card.
-      if (g.axis === null && Math.abs(dx) < TAP_SLOP && Math.abs(dy) < TAP_SLOP) {
-        onFlip()
-        reset()
-        return
-      }
-      // Anything else (short/incomplete swipe, vertical scroll): snap back.
-      reset()
+  const handleDragEnd = useCallback(
+    (_e: PointerEvent, info: PanInfo) => {
+      const swiped = Math.abs(info.offset.x) > SWIPE_DIST || Math.abs(info.velocity.x) > SWIPE_VEL
+      if (swiped && info.offset.x < 0 && hasNext) return go(-1)
+      if (swiped && info.offset.x > 0 && hasPrev) return go(1)
+      animate(x, 0, { type: 'spring', stiffness: 320, damping: 32 })
     },
-    [navigate, hasNext, hasPrev, onFlip, reset],
+    [go, hasNext, hasPrev, x],
   )
 
-  // The browser aborted the gesture (e.g. it took over for scrolling). Never
-  // navigate or flip on a cancel — just settle the card back into place.
-  const onPointerCancel = useCallback(() => {
-    const g = gesture.current
-    if (!g.active) return
-    g.active = false
-    reset()
-  }, [reset])
-
-  const opacity = Math.max(0.45, 1 - Math.abs(dragX) / 900)
-  const swiperStyle = {
-    transform: `translateX(${dragX}px) rotate(${dragX / 34}deg)`,
-    transition,
-    opacity,
-  }
+  const glow = useCallback((e: React.MouseEvent, el: HTMLDivElement) => {
+    const rect = el.getBoundingClientRect()
+    el.style.setProperty('--mouse-x', `${((e.clientX - rect.left) / rect.width) * 100}%`)
+    el.style.setProperty('--mouse-y', `${((e.clientY - rect.top) / rect.height) * 100}%`)
+  }, [])
 
   return (
     <div className={styles.wrapper}>
       <button
         className={`${styles.arrow} ${!hasPrev ? styles.arrowHidden : ''}`}
-        onClick={onPrev}
+        onClick={() => hasPrev && go(1)}
         disabled={!hasPrev}
         aria-label="Previous"
       >
         ‹
       </button>
 
-      <div
+      <motion.div
         className={styles.card}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerCancel}
+        style={{ x, rotate, opacity }}
+        drag="x"
+        dragMomentum={false}
+        dragElastic={1}
+        onDragEnd={handleDragEnd}
+        onTap={onFlip}
       >
-        {/* drag layer: horizontal translate + tilt, independent of the flip */}
-        <div className={styles.swiper} style={swiperStyle}>
-          {/* flip layer: rotateY, independent of the drag */}
-          <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
-            <div
-              ref={frontRef}
-              className={styles.front}
-              onMouseMove={(e) => handleMouseMove(e, frontRef.current)}
-            >
-              <p className={styles.text}>{card.question}</p>
-            </div>
-            <div
-              ref={backRef}
-              className={styles.back}
-              onMouseMove={(e) => handleMouseMove(e, backRef.current)}
-            >
-              <p className={styles.text}>{card.answer}</p>
-            </div>
+        <div className={`${styles.flipper} ${flipped ? styles.flipped : ''}`}>
+          <div
+            className={styles.front}
+            onMouseMove={(e) => glow(e, e.currentTarget)}
+          >
+            <p className={styles.text}>{card.question}</p>
+          </div>
+          <div
+            className={styles.back}
+            onMouseMove={(e) => glow(e, e.currentTarget)}
+          >
+            <p className={styles.text}>{card.answer}</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <button
         className={`${styles.arrow} ${!hasNext ? styles.arrowHidden : ''}`}
-        onClick={onNext}
+        onClick={() => hasNext && go(-1)}
         disabled={!hasNext}
         aria-label="Next"
       >
