@@ -9,9 +9,13 @@ export default function App() {
     currentIndex,
     filteredCards,
     flipped,
+    sets,
+    set,
     category,
     topic,
+    availableCategories,
     availableTopics,
+    setSetFilter,
     setCategoryFilter,
     setTopicFilter,
     nextCard,
@@ -23,9 +27,13 @@ export default function App() {
     <div className={styles.app}>
       <header className={styles.header}>
         <FilterBar
+          sets={sets}
+          set={set}
           category={category}
           topic={topic}
+          availableCategories={availableCategories}
           availableTopics={availableTopics}
+          onSetChange={setSetFilter}
           onCategoryChange={setCategoryFilter}
           onTopicChange={setTopicFilter}
         />

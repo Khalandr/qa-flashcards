@@ -1,18 +1,19 @@
 export type Difficulty = 'easy' | 'medium' | 'hard'
-export type Category = 'qa' | 'automation' | 'ai'
 
 export interface FlashCard {
   id: string
   question: string
   answer: string
+  set: string
+  category: string
   topic: string
   difficulty: Difficulty
   probability: number
-  category: Category
 }
 
 export interface Filters {
-  category: 'all' | Category
+  set: string
+  category: 'all' | string
   topic: string
   search: string
 }
