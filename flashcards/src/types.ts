@@ -1,19 +1,14 @@
-export type Difficulty = 'easy' | 'medium' | 'hard'
-
-export interface FlashCard {
+export interface Topic {
   id: string
-  question: string
-  answer: string
-  set: string
-  category: string
-  topic: string
-  difficulty: Difficulty
-  probability: number
+  sIdx: number
+  section: string
+  subgroup: string | null
+  title: string
+  explanation: string
 }
 
-export interface Filters {
-  set: string
-  category: 'all' | string
-  topic: string
-  search: string
+export interface Section {
+  sIdx: number
+  section: string
+  topics: Topic[]
 }

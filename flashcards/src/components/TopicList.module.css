@@ -1,0 +1,140 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.head {
+  padding: 18px 18px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  background: #0b0b14;
+  z-index: 2;
+}
+.appTitle {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #efe9ff;
+  letter-spacing: 0.2px;
+}
+.sub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 2px;
+}
+.search {
+  margin-top: 12px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search:focus {
+  border-color: rgba(167, 139, 250, 0.6);
+}
+.search::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.sections {
+  flex: 1;
+  padding: 8px 8px 40px;
+}
+.empty {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.85rem;
+  padding: 16px;
+}
+
+.section {
+  margin-bottom: 2px;
+}
+.secHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 10px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.82);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.secHeader:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.secNum {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: rgba(167, 139, 250, 0.16);
+  color: #c4b5fd;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.secTitle {
+  flex: 1;
+  min-width: 0;
+}
+.secCount {
+  flex-shrink: 0;
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+}
+.chev {
+  flex-shrink: 0;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.35);
+  width: 12px;
+}
+
+.topics {
+  padding: 2px 0 8px 8px;
+}
+.subgroup {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.32);
+  padding: 10px 10px 4px;
+}
+.topic {
+  display: block;
+  width: 100%;
+  padding: 7px 10px 7px 22px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.62);
+  font-family: inherit;
+  font-size: 0.82rem;
+  line-height: 1.35;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  border-left: 2px solid transparent;
+}
+.topic:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.9);
+}
+.active {
+  background: rgba(167, 139, 250, 0.14);
+  color: #efe9ff;
+  border-left-color: #a78bfa;
+}
